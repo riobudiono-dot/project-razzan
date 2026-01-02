@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>gift dr razzan</title>
+  <style>
+    :root{
+      --bg1:#f6d6db;
+      --bg2:#f3c9d1;
+      --red:#cf2f2f;
+      --green:#2ea44f;
+      --text:#8b1f1f;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+    }
+
+    .card{
+      width:min(520px, 92vw);
+      text-align:center;
+      position:relative;
+      padding:24px 16px 18px;
+    }
+
+    h1{
+      margin: 0 0 16px;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: .2px;
+      will-change: transform, filter, opacity;
+    }
+
+    .btns{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      align-items:center;
+      margin: 10px 0 18px;
+      position:relative;
+      z-index:2;
+    }
+
+    button{
+      border:0;
+      padding:10px 18px;
+      border-radius:6px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      transition: transform .18s ease, filter .18s ease;
+      box-shadow: 0 6px 16px rgba(0,0,0,.12);
+      user-select:none;
+    }
+    button:hover{ filter: brightness(1.04); }
+    button:active{ transform: scale(0.98); }
+    #yesBtn{ background: var(--green); transform-origin:center; }
+    #noBtn{ background: var(--red); }
+
+    .pet{
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
+      display:block;
+      object-fit:contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
+      position:relative;
+      z-index:1;
+      will-change: transform, opacity, filter;
+    }
+
+    /* floating hearts */
+    .heart{
+      position:absolute;
+      left:50%;
+      top: 54%;
+      font-size: 22px;
+      transform: translateX(-50%);
+      animation: floatUp 1.4s ease forwards;
+      pointer-events:none;
+      z-index:3;
+      opacity: .95;
+    }
+    @keyframes floatUp{
+      0%   { transform: translate(-50%, 0) scale(1); opacity:.95; }
+      100% { transform: translate(calc(-50% + var(--dx)), -140px) scale(1.4); opacity:0; }
+    }
+
+    .hide{ display:none !important; }
+
+    /* make layout survive huge YES */
+    .big-yes #yesBtn{ will-change: transform; }
+
+    /* =========================
+       FINAL ANIMATION (YES scene)
+       ========================= */
+    .final #title{
+      animation: titlePop .9s ease-out both, titleGlow 1.4s ease-in-out .2s infinite alternate;
+      text-shadow: 0 10px 25px rgba(0,0,0,.12);
+    }
+
+    .final #petImg{
+      animation: imgPop .8s cubic-bezier(.2,1.2,.2,1) both, imgWiggle 1.2s ease-in-out .9s infinite;
+    }
+
+    @keyframes titlePop{
+      0%   { transform: translateY(12px) scale(.92); opacity:0; }
+      60%  { transform: translateY(-6px) scale(1.06); opacity:1; }
+      100% { transform: translateY(0) scale(1); opacity:1; }
+    }
+    @keyframes titleGlow{
+      from { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); letter-spacing: .2px; }
+      to   { filter: drop-shadow(0 0 18px rgba(255,255,255,.55)); letter-spacing: .8px; }
+    }
+
+    @keyframes imgPop{
+      0%   { transform: scale(.6) rotate(-6deg); opacity:0; }
+      70%  { transform: scale(1.08) rotate(3deg); opacity:1; }
+      100% { transform: scale(1) rotate(0deg); opacity:1; }
+    }
+    @keyframes imgWiggle{
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      25%     { transform: translateY(-6px) rotate(-2deg); }
+      50%     { transform: translateY(0) rotate(2deg); }
+      75%     { transform: translateY(-4px) rotate(-1deg); }
+    }
+
+    /* Confetti */
+    .confetti{
+      position: fixed;
+      width: 10px;
+      height: 14px;
+      left: var(--x);
+      top: var(--y);
+      transform: translate(-50%,-50%) rotate(0deg);
+      opacity: 1;
+      z-index: 99999;
+      animation: confettiFly 1.2s ease-out forwards;
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      border-radius: 2px;
+      pointer-events:none;
+    }
+    @keyframes confettiFly{
+      0%   { transform: translate(-50%,-50%) rotate(0deg); opacity:1; }
+      100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(540deg); opacity:0; }
+    }
+
+    /* (opsional) kurangi animasi buat user yg prefer reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .final #title, .final #petImg, .heart, .confetti { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1 id="title">halo ch kamu naksir ga sama aku?</h1>
+
+    <div class="btns" id="btnRow">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </div>
+
+    <img
+      id="petImg"
+      class="pet"
+      alt="cute"
+      src="https://media.tenor.com/8VZ3h6xw0uAAAAAi/cat-cute.gif"
+    />
+  </div>
+
+  <script>
+    const title = document.getElementById("title");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn  = document.getElementById("noBtn");
+    const petImg = document.getElementById("petImg");
+    const card   = document.getElementById("card");
+    const btnRow = document.getElementById("btnRow");
+
+    const noTexts = [
+      "No",
+      "Are you sure?",
+      "Are you positive?",
+      "Pookie please…",
+      "If you say no, I will be really sad…",
+      "I will be very sad…"
+    ];
+
+    // Kamu bisa ganti ke file lokal supaya nggak jadi "kotak biru"
+    // contoh: idle:"./idle.gif", hug:"./hug.gif"
+    const pets = {
+      idle: "https://media.tenor.com/8VZ3h6xw0uAAAAAi/cat-cute.gif",
+      happy:"https://media.tenor.com/4O6q4fKjV3YAAAAi/cute-cat.gif",
+      sad:  "https://media.tenor.com/4W7cZ4gR4o0AAAAi/cat-cry.gif",
+      hug:  "https://media.tenor.com/7nqkJtY3kzQAAAAi/love-hug.gif"
+    };
+
+    let noCount = 0;
+    let yesScale = 1;
+
+    function spawnHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = "💗";
+      heart.style.setProperty("--dx", `${(Math.random()*160 - 80).toFixed(0)}px`);
+      document.body.appendChild(heart);
+
+      const rect = card.getBoundingClientRect();
+      heart.style.left = (rect.left + rect.width/2) + "px";
+      heart.style.top  = (rect.top + rect.height*0.46) + "px";
+
+      setTimeout(() => heart.remove(), 1500);
+    }
+
+    function setPet(state){
+      petImg.src = pets[state] || pets.idle;
+    }
+
+    function growYes(){
+      yesScale = Math.min(yesScale * 1.35, 12);
+      yesBtn.style.transform = `scale(${yesScale})`;
+      card.classList.add("big-yes");
+    }
+
+    function updateNo(){
+      noBtn.textContent = noTexts[noCount];
+      if (noCount <= 1) setPet("happy");
+      else if (noCount <= 3) setPet("idle");
+      else setPet("sad");
+    }
+
+    function dodgeNo(){
+      const maxX = window.innerWidth  - 140;
+      const maxY = window.innerHeight - 80;
+
+      const x = Math.min(Math.max(20, Math.random() * maxX), maxX);
+      const y = Math.min(Math.max(20, Math.random() * maxY), maxY);
+
+      noBtn.style.position = "fixed";
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+      noBtn.style.zIndex = 9999;
+    }
+
+    function confettiBurst(count = 90){
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+
+      const colors = ["#ff4d6d","#ffd166","#06d6a0","#4dabf7","#b197fc","#ff8fab"];
+      for(let i=0;i<count;i++){
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.setProperty("--x", cx + "px");
+        c.style.setProperty("--y", (cy - 40) + "px");
+
+        const dx = (Math.random()*520 - 260).toFixed(0) + "px";
+        const dy = (Math.random()*520 - 80).toFixed(0) + "px";
+        c.style.setProperty("--dx", dx);
+        c.style.setProperty("--dy", dy);
+
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(), 1300);
+      }
+    }
+
+    noBtn.addEventListener("click", () => {
+      noCount = Math.min(noCount + 1, noTexts.length - 1);
+      updateNo();
+      growYes();
+      spawnHeart();
+
+      // mulai ngindar setelah 3x
+      if (noCount >= 3) {
+        noBtn.addEventListener("mouseenter", dodgeNo);
+      }
+    });
+
+    yesBtn.addEventListener("click", () => {
+      title.textContent = "aku tau kamu pasti naksir hehe!";
+      btnRow.classList.add("hide");
+      setPet("hug");
+
+      // aktifkan animasi final
+      card.classList.add("final");
+
+      // efek "wah"
+      confettiBurst(90);
+      for(let i=0;i<10;i++) setTimeout(spawnHeart, i*110);
+    });
+
+    // init
+    setPet("idle");
+    updateNo();
+  </script>
+</body>
+</html>
